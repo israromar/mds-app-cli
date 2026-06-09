@@ -3,8 +3,16 @@
   "version": "0.1.0",
   "description": "Scaffold production-ready Expo apps for MobileDevelopmentSimplified",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/israromar/mds-app-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/israromar/mds-app-cli/issues"
+  },
+  "homepage": "https://github.com/israromar/mds-app-cli#readme",
   "bin": {
-    "create-mds-app": "./dist/index.js"
+    "create-mds-app": "dist/index.js"
   },
   "files": [
     "dist",
