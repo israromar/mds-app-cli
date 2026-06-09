@@ -1,7 +1,21 @@
 import { execa } from 'execa';
+import { existsSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import pc from 'picocolors';
 
 import type { GeneratorAnswers } from './types.js';
+
+/**
+ * Yarn 4 walks up for a workspace root. When the generated app lives inside
+ * another folder with package.json (but isn't listed in that workspace),
+ * `yarn install` fails unless this project has its own yarn.lock.
+ */
+function ensureYarnProjectRoot(targetDir: string): void {
+  const lockfile = path.join(targetDir, 'yarn.lock');
+  if (!existsSync(lockfile)) {
+    writeFileSync(lockfile, '', 'utf8');
+  }
+}
 
 function installCommand(pm: GeneratorAnswers['packageManager']): {
   command: string;
@@ -25,9 +39,16 @@ export async function postGenerate(answers: GeneratorAnswers): Promise<void> {
 
   if (answers.installDeps) {
     const { command, args } = installCommand(answers.packageManager);
+    if (answers.packageManager === 'yarn') {
+      ensureYarnProjectRoot(answers.targetDir);
+    }
     await execa(command, args, {
       cwd: answers.targetDir,
       stdio: 'inherit',
+      env: {
+        ...process.env,
+        YARN_ENABLE_IMMUTABLE_INSTALLS: 'false',
+      },
     });
   }
 }
