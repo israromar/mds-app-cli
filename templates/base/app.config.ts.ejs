@@ -1,0 +1,84 @@
+import 'dotenv/config';
+
+import type { ConfigContext } from 'expo/config';
+
+import packageJson from './package.json';
+
+const apsEnvironment =
+  (process.env.APS_ENVIRONMENT as 'development' | 'production' | undefined) ??
+  'development';
+
+const sentryOrg = process.env.SENTRY_ORG ?? '<%= sentryOrg %>';
+const sentryProject = process.env.SENTRY_PROJECT ?? '<%= sentryProject %>';
+const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const sentryPlugin = [
+  '@sentry/react-native',
+  {
+    organization: sentryOrg,
+    project: sentryProject,
+  },
+] as const;
+
+const easProjectId = process.env.EAS_PROJECT_ID ?? '<%= easProjectId %>';
+const easUpdateUrl = `https://u.expo.dev/${easProjectId}`;
+
+/** EAS preview/production only. Local `expo run:*` must not fetch OTA on launch. */
+const otaUpdatesEnabled =
+  process.env.EAS_BUILD_PROFILE === 'production' ||
+  process.env.EAS_BUILD_PROFILE === 'preview';
+
+const config = ({ config: incomingConfig }: ConfigContext) => ({
+  ...incomingConfig,
+  name: '<%- appNameJs %>',
+  owner: process.env.EXPO_OWNER ?? '<%= expoOwner %>',
+  slug: '<%= slug %>',
+  scheme: '<%= scheme %>',
+  version: packageJson.version,
+  newArchEnabled: true,
+  userInterfaceStyle: 'automatic',
+  icon: './assets/icon.png',
+  ios: {
+    ...incomingConfig.ios,
+    bundleIdentifier: '<%= bundleId %>',
+    supportsTablet: true,
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+      CADisableMinimumFrameDurationOnPhone: true,
+      NSPhotoLibraryUsageDescription:
+        '<%- appNameJs %> needs access to your photo library so you can choose a profile picture.',
+    },
+    entitlements: {
+      'aps-environment': apsEnvironment,
+<% if (hasAuth) { -%>
+      'com.apple.developer.applesignin': ['Default'],
+<% } -%>
+    },
+  },
+  android: {
+    ...incomingConfig.android,
+    package: '<%= bundleId %>',
+    permissions: ['POST_NOTIFICATIONS'],
+    adaptiveIcon: {
+      foregroundImage: './assets/icon.png',
+      backgroundColor: '#FFFFFF',
+    },
+  },
+  plugins: [
+    'expo-dev-client',
+    'expo-updates',
+    ...(sentryDsn ? [sentryPlugin] : []),
+  ],
+  updates: {
+    url: easUpdateUrl,
+    enabled: otaUpdatesEnabled,
+    checkAutomatically: otaUpdatesEnabled ? 'ON_LOAD' : 'NEVER',
+  },
+  extra: {
+    eas: {
+      projectId: easProjectId,
+    },
+  },
+  runtimeVersion: packageJson.version,
+});
+
+export default config;

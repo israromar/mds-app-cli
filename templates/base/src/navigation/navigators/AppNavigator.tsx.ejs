@@ -1,0 +1,50 @@
+import { createStackNavigator } from '@react-navigation/stack';
+
+import { Paths } from '@/navigation/paths';
+import type { RootStackParamList } from '@/navigation/types';
+
+import { EditProfileScreen } from '@/features/profile/screens/EditProfileScreen';
+import { ProfileScreen } from '@/features/profile/screens/ProfileScreen';
+import { SettingsScreen } from '@/features/settings/screens/SettingsScreen';
+<% if (hasAuth) { -%>
+import { ChangePasswordScreen } from '@/features/settings/screens/ChangePasswordScreen';
+<% } -%>
+<% if (hasDrawer) { -%>
+import { MainDrawerNavigator } from './MainDrawerNavigator';
+<% } else if (hasTabs) { -%>
+import { MainTabNavigator } from './MainTabNavigator';
+<% } else { -%>
+import { DashboardScreen } from '@/features/dashboard/screens/DashboardScreen';
+<% } -%>
+
+const Stack = createStackNavigator<RootStackParamList>();
+
+/**
+ * Stack for authenticated (or always-on) screens. The "Main" screen hosts the
+ * primary navigation shell; the remaining screens are pushed on top.
+ */
+export function AppNavigator() {
+  return (
+    <Stack.Navigator
+      initialRouteName={Paths.Main}
+      screenOptions={{ headerShown: false }}
+    >
+<% if (hasDrawer) { -%>
+      <Stack.Screen component={MainDrawerNavigator} name={Paths.Main} />
+<% } else if (hasTabs) { -%>
+      <Stack.Screen component={MainTabNavigator} name={Paths.Main} />
+<% } else { -%>
+      <Stack.Screen component={DashboardScreen} name={Paths.Main} />
+<% } -%>
+      <Stack.Screen component={ProfileScreen} name={Paths.Profile} />
+      <Stack.Screen component={SettingsScreen} name={Paths.Settings} />
+      <Stack.Screen component={EditProfileScreen} name={Paths.EditProfile} />
+<% if (hasAuth) { -%>
+      <Stack.Screen
+        component={ChangePasswordScreen}
+        name={Paths.ChangePassword}
+      />
+<% } -%>
+    </Stack.Navigator>
+  );
+}

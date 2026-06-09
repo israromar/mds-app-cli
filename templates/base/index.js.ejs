@@ -1,0 +1,20 @@
+// Must run before @supabase/supabase-js: RN's URL has a read-only `protocol`.
+import 'react-native-url-polyfill/auto';
+
+import { AppRegistry, LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'i18next is made possible by our own product',
+  'Require cycle:',
+  'SafeAreaView has been deprecated',
+  '[Reanimated] Reading from',
+  '[Reanimated] Writing to',
+]);
+
+import { initSentry } from './src/services/sentry';
+
+initSentry();
+
+import App from './src/App';
+
+AppRegistry.registerComponent('main', () => App);

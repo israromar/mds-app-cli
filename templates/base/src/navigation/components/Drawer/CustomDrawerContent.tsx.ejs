@@ -1,0 +1,103 @@
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+} from '@react-navigation/drawer';
+import {
+  LayoutDashboard,
+<% if (hasAuth) { -%>
+  LogOut,
+<% } -%>
+  Settings,
+  User as UserIcon,
+} from 'lucide-react-native';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Dimensions } from 'react-native';
+
+import { Paths } from '@/navigation/paths';
+
+import { Box, Divider, VStack } from '@/components/ui';
+
+import { APP_CONFIG } from '@/constants/app';
+<% if (hasAuth) { -%>
+import { useAuthStore } from '@/store/authStore';
+<% } -%>
+
+import { DrawerAction } from './DrawerAction';
+import { DrawerFooter } from './DrawerFooter';
+import { DrawerHeader } from './DrawerHeader';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+export function CustomDrawerContent(props: DrawerContentComponentProps) {
+  const { navigation } = props;
+  const { t } = useTranslation();
+<% if (hasAuth) { -%>
+  const { user, signOut } = useAuthStore();
+
+  const handleLogout = useCallback(() => {
+    navigation.closeDrawer();
+    void signOut();
+  }, [navigation, signOut]);
+
+  const userName = user?.email?.split('@')[0] ?? APP_CONFIG.name;
+  const userHandle = user?.email ? `@${user.email.split('@')[0]}` : '';
+<% } else { -%>
+  const userName = APP_CONFIG.name;
+  const userHandle = '';
+<% } -%>
+
+  const goDashboard = useCallback(() => {
+<% if (hasTabs) { -%>
+    navigation.navigate(Paths.MainTabs);
+<% } else { -%>
+    navigation.navigate(Paths.Dashboard);
+<% } -%>
+  }, [navigation]);
+
+  return (
+    <Box className="flex-1 py-6 pb-8" style={{ height: SCREEN_HEIGHT }}>
+      <VStack className="flex-1 overflow-hidden rounded-[32px] bg-white shadow-2xl shadow-black/20 border border-neutral-100">
+        <DrawerContentScrollView
+          {...props}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <DrawerHeader avatar="" userHandle={userHandle} userName={userName} />
+
+          <Divider className="mx-6 bg-neutral-50" />
+
+          <VStack className="px-3 gap-1 pt-6">
+            <DrawerAction
+              handlePress={goDashboard}
+              icon={LayoutDashboard}
+              label={t('app:nav.dashboard')}
+            />
+            <DrawerAction
+              handlePress={() => navigation.navigate(Paths.EditProfile)}
+              icon={UserIcon}
+              label={t('app:screen_settings.edit_profile')}
+            />
+            <DrawerAction
+              handlePress={() => navigation.navigate(Paths.Settings)}
+              icon={Settings}
+              label={t('app:screen_settings.title')}
+            />
+<% if (hasAuth) { -%>
+            <Box className="mt-4 pt-4 border-t border-neutral-50">
+              <DrawerAction
+                handlePress={handleLogout}
+                icon={LogOut}
+                isDestructive
+                label={t('app:screen_settings.logout')}
+              />
+            </Box>
+<% } -%>
+          </VStack>
+        </DrawerContentScrollView>
+
+        <DrawerFooter />
+      </VStack>
+    </Box>
+  );
+}

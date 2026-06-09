@@ -1,0 +1,76 @@
+import 'react-native-gesture-handler';
+import '../global.css';
+import '@/lib/nativewindInterop';
+
+import { QueryClientProvider } from '@tanstack/react-query';
+import * as Updates from 'expo-updates';
+import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import ApplicationNavigator from '@/navigation/Application';
+import { ThemeProvider } from '@/theme';
+import '@/translations';
+
+import { GluestackRoot } from '@/components/gluestack';
+import { ToastProvider } from '@/components/ui';
+
+import { queryClient } from '@/services/queryClient';
+import { Sentry } from '@/services/sentry';
+import { appStorage } from '@/storage/appStorage';
+
+export const storage = appStorage;
+
+function App() {
+  useExpoUpdatesCheck();
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <KeyboardProvider preload={false}>
+          <GluestackRoot>
+            <QueryClientProvider client={queryClient}>
+              <ThemeProvider storage={storage}>
+                <ToastProvider>
+                  <ApplicationNavigator />
+                </ToastProvider>
+              </ThemeProvider>
+            </QueryClientProvider>
+          </GluestackRoot>
+        </KeyboardProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+function useExpoUpdatesCheck() {
+  const { isUpdatePending } = Updates.useUpdates();
+
+  useEffect(() => {
+    if (!Updates.isEnabled || __DEV__) {
+      return;
+    }
+    void (async () => {
+      try {
+        const result = await Updates.checkForUpdateAsync();
+        if (result.isAvailable) {
+          await Updates.fetchUpdateAsync();
+        }
+      } catch {
+        // OTA is best-effort and must never block startup.
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!Updates.isEnabled || __DEV__ || !isUpdatePending) {
+      return;
+    }
+    void Updates.reloadAsync();
+  }, [isUpdatePending]);
+}
+
+export default Sentry.wrap(App);
+
+export { queryClient } from '@/services/queryClient';

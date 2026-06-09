@@ -1,0 +1,19 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "types": ["react-native", "jest", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "strictNullChecks": true,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": [
+    "app.config.ts",
+    "nativewind-env.d.ts",
+    "tailwind.config.ts",
+    "./src/**/*"
+  ],
+  "exclude": ["**/node_modules", "android", "ios", "**/Pods", "src/tests"]
+}

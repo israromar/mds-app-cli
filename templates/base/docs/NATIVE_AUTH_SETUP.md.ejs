@@ -1,0 +1,88 @@
+# Native Authentication Setup
+
+Comprehensive guide for configuring Apple and Google social login using Supabase for the <%= appName %> mobile application.
+
+---
+
+## 1. Google Sign-In Setup
+
+### Google Cloud Console
+1.  **Create Project**: Ensure you have a project in the [Google Cloud Console](https://console.cloud.google.com/).
+2.  **OAuth Consent Screen**: Configure the consent screen for your app.
+3.  **Create Credentials**: You need three separate OAuth 2.0 Client IDs:
+    *   **Web application**: Required for Supabase to verify tokens.
+        *   *Authorized redirect URIs*: `https://[YOUR_PROJECT_REF].supabase.co/auth/v1/callback`
+    *   **iOS**: Required for the iPhone app.
+        *   *Bundle ID*: Must match your Xcode Bundle Identifier (`<%= bundleId %>`).
+    *   **Android**: Required for the Android app.
+        *   *Package name*: Must match your Android package name.
+        *   *SHA-1 fingerprint*: Provide both debug and release keys.
+
+### Supabase Configuration
+1.  Go to **Auth > Providers > Google**.
+2.  **Enable** the provider.
+3.  **Client ID**: Use the **Web application** Client ID.
+4.  **Client Secret**: Use the **Web application** Client Secret.
+5.  **Skip Nonce Check**: **MUST be ON** for Google on iOS. 
+    *   *Why?* The Google library on iOS generates nonces internally and doesn't always expose the raw value needed for a standard check. Enabling this in Supabase ensures the login works reliably on iPhone.
+
+---
+
+## 2. Apple Sign-In Setup
+
+### Apple Developer Portal
+1.  **Identifiers**: Create an App ID for `<%= bundleId %>` and enable the **"Sign In with Apple"** capability.
+2.  **Keys**: Create a new Key for Sign In with Apple, download it, and note the **Key ID**.
+3.  **Services ID**: (Optional for native but good for web) Create a Services ID for `<%= bundleId %>.services`.
+
+### Supabase Configuration
+1.  Go to **Auth > Providers > Apple**.
+2.  **Enable** the provider.
+3.  **Services ID**: Your App ID or Services ID.
+4.  **Team ID**: Your 10-character Apple Team ID.
+5.  **Key ID**: The ID of the key created above.
+6.  **Secret Key**: The contents of the `.p8` key file.
+
+---
+
+## 3. Native App Configuration
+
+### iOS (Xcode)
+1.  **Capabilities**: Add **"Sign In with Apple"** and **"Keychain Sharing"** in the "Signing & Capabilities" tab.
+2.  **URL Schemes**: 
+    *   In `Info.plist`, add a URL type for Google.
+    *   *URL Scheme*: Use the **Reversed Client ID** of your **iOS Client ID** (e.g., `com.googleusercontent.apps.9947...`).
+3.  **Bundle ID**: Ensure `PRODUCT_BUNDLE_IDENTIFIER` is exactly `<%= bundleId %>`.
+
+### Android
+1.  **SHA-1**: Ensure the SHA-1 in Google Console matches your local `debug.keystore` (run `cd android && ./gradlew signingReport` to find it).
+
+---
+
+## 5. Email/Password Setup (MVP)
+
+To allow users to sign up and sign in immediately without waiting for a confirmation email:
+
+1.  Go to your **Supabase Dashboard**.
+2.  Navigate to **Authentication > Providers > Email**.
+3.  Turn **OFF** the setting: **"Confirm email"**.
+4.  Click **Save**.
+
+---
+
+## 6. Environment Variables (`.env`)
+
+```env
+# Google
+GOOGLE_WEB_CLIENT_ID=9947...-ohq03l...apps.googleusercontent.com
+GOOGLE_IOS_CLIENT_ID=9947...-e8f8nad...apps.googleusercontent.com
+
+# Supabase
+EXPO_PUBLIC_SUPABASE_URL=https://[YOUR_REF].supabase.co
+EXPO_PUBLIC_SUPABASE_KEY=your-anon-key
+```
+
+### 💡 Troubleshooting
+*   **"DEVELOPER_ERROR" (Google)**: Usually means the SHA-1 (Android) or Bundle ID/URL Scheme (iOS) doesn't match the Google Console exactly.
+*   **"Nonce mismatch"**: Ensure you are passing the `nonce` to `signInWithIdToken` if it exists in the identity token.
+*   **"Unable to resolve data for blob"**: Disable the JS Debugger in the simulator, as it breaks React Native's blob handling for fetch requests.

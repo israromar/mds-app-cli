@@ -1,0 +1,32 @@
+import { createStackNavigator } from '@react-navigation/stack';
+
+import { Paths } from '@/navigation/paths';
+import type { RootStackParamList } from '@/navigation/types';
+
+import {
+  ForgotPassword,
+  ResetPassword,
+  SignIn,
+  SignUp,
+  VerifyResetCode,
+} from '@/features/auth';
+
+const Stack = createStackNavigator<RootStackParamList>();
+
+/**
+ * Screens shown while signed out (or during password recovery).
+ */
+export function AuthNavigator() {
+  return (
+    <Stack.Navigator
+      initialRouteName={Paths.SignIn}
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen component={SignIn} name={Paths.SignIn} />
+      <Stack.Screen component={SignUp} name={Paths.SignUp} />
+      <Stack.Screen component={ForgotPassword} name={Paths.ForgotPassword} />
+      <Stack.Screen component={VerifyResetCode} name={Paths.VerifyResetCode} />
+      <Stack.Screen component={ResetPassword} name={Paths.ResetPassword} />
+    </Stack.Navigator>
+  );
+}

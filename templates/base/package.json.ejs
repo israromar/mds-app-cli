@@ -1,0 +1,38 @@
+{
+  "name": "<%= slug %>",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "prebuild": "expo prebuild",
+    "prebuild:clean": "expo prebuild --clean",
+    "build:dev": "eas build --profile development --platform all",
+    "build:preview": "eas build --profile preview --platform all",
+    "build:prod": "eas build --profile production --platform all",
+    "update:production": "eas update --channel production",
+    "update:preview": "eas update --channel preview",
+    "test": "jest --passWithNoTests",
+    "lint:code-format": "prettier --check \"src/**/*.{js,json,md,ts,tsx}\"",
+    "lint:type-check": "tsc",
+    "lint": "yarn lint:code-format && yarn lint:type-check",
+    "lint:fix": "prettier --write \"src/**/*.{js,json,md,ts,tsx}\" && tsc"
+  },
+  "dependencies": {
+<% const depKeys = Object.keys(dependencies).sort(); -%>
+<% depKeys.forEach((key, i) => { -%>
+    "<%= key %>": "<%= dependencies[key] %>"<%= i < depKeys.length - 1 ? ',' : '' %>
+<% }); -%>
+  },
+  "devDependencies": {
+<% const devKeys = Object.keys(devDependencies).sort(); -%>
+<% devKeys.forEach((key, i) => { -%>
+    "<%= key %>": "<%= devDependencies[key] %>"<%= i < devKeys.length - 1 ? ',' : '' %>
+<% }); -%>
+  },
+  "engines": {
+    "node": ">= 20"
+  }
+}

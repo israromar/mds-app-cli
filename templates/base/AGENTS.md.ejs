@@ -1,0 +1,137 @@
+# <%- appName %> — Agent Instructions
+
+This is an **Expo + React Native** app scaffolded with **create-mds-app**.
+Agents should follow these conventions on every change. Optional specialized
+skills are listed in [`SKILLS_DIRECTORY.md`](./SKILLS_DIRECTORY.md) (install
+separately — they are not bundled in this repo).
+
+**Setup & shipping:** [`docs/POST_GENERATION_SETUP.md`](./docs/POST_GENERATION_SETUP.md)<% if (hasAuth) { %> · [`docs/NATIVE_AUTH_SETUP.md`](./docs/NATIVE_AUTH_SETUP.md)<% } %>.
+
+---
+
+## Stack in this project
+
+- **Expo SDK 56** / **React Native 0.85** with the New Architecture (`newArchEnabled`)
+- **Navigation:** React Navigation — <%= rootNavigator === 'drawer-tabs' ? 'drawer + tabs + stack' : rootNavigator === 'drawer-only' ? 'drawer + stack' : rootNavigator === 'tabs-only' ? 'tabs + stack' : 'stack only' %>
+- **Styling:** NativeWind 4 + design tokens in `src/theme/` (gluestack-ui primitives)
+- **State:** TanStack Query (server/async) · Zustand + MMKV (client/persisted)
+- **i18n:** `react-i18next` — keys in `src/translations/en-EN.json` (`app` namespace)
+<% if (hasAuth) { -%>
+- **Auth:** Supabase (`src/services/supabase/`, `src/features/auth/`, `src/store/authStore.ts`)
+<% } -%>
+- **Observability:** Sentry (`src/services/sentry.ts`) — enabled only when `EXPO_PUBLIC_SENTRY_DSN` is set
+- **Release:** EAS Build / Submit / OTA (`eas.json`, `app.config.ts`)
+
+---
+
+## Project layout
+
+```
+src/
+  features/[feature]/     # api/, components/, hooks/, screens/, types/, index.ts
+  components/             # shared UI (atoms → organisms → templates)
+  navigation/             # Application.tsx gate, navigators, paths, types
+  theme/                  # tokens, ThemeProvider, useTheme
+  services/               # queryClient, sentry<% if (hasAuth) { %>, supabase<% } %>
+  store/                  # Zustand stores<% if (hasAuth) { %> (auth)<% } %>
+  translations/           # i18n resources
+  constants/              # app-wide constants
+  utils/                  # pure helpers
+```
+
+- Import from `@/` alias (`@/*` → `src/*`). **Never** use deep relative paths across features.
+- Import features via their **public** `index.ts` — not internal files.
+
+---
+
+## Required conventions
+
+### Features & components
+
+- **Feature-based structure:** business logic lives under `src/features/[name]/`.
+- **Container vs. presentational:** screens own data hooks and orchestration;
+  extract reusable layout into pure, typed presentational components.
+- **No god components:** split when a screen file exceeds ~200 lines or mixes
+  data fetching with heavy layout.
+
+### Styling
+
+- Use NativeWind `className` and tokens from `src/theme/` (`useTheme`, `cn()`).
+- **Do not** hard-code hex colors or magic spacing — extend tokens in
+  `src/theme/` when new values are needed.
+
+### State
+
+- **Server/async state** → TanStack Query (`src/services/queryClient.ts`, feature `api/`).
+- **Client/persisted state** → Zustand + MMKV (`src/storage/appStorage.ts`).
+- Do not duplicate server data in Zustand unless there is a clear UX reason.
+
+### i18n
+
+- **All user-facing copy** goes in `src/translations/en-EN.json` under the `app`
+  namespace — never hard-code strings in components.
+- Add keys for both labels and error messages; keep naming consistent with
+  existing `common_*` / feature prefixes.
+
+### Navigation
+
+- Prefer **declarative, state-driven** routing (auth session, onboarding flag)
+  over imperative `navigation.reset` / `replace` inside `useEffect`.
+- Route names and params live in `src/navigation/paths.ts` and `types.ts` —
+  extend those instead of string literals.
+
+### Forms & validation
+
+- Use **zod** schemas in feature `api/schemas.ts` (see `src/features/auth/api/schemas.ts`).
+- Validate at API boundaries; surface field errors in presentational inputs.
+
+### Native & prebuild
+
+- `ios/` and `android/` are **generated** — configure via `app.config.ts`, not
+  by editing native folders directly.
+- After adding a native module or config plugin: `npx expo prebuild --clean`.
+- Restart Metro with `npx expo start --clear` after `.env` changes.
+
+### Secrets & env
+
+- Never commit `.env`. Public keys use `EXPO_PUBLIC_*` prefix.
+- Do not log tokens, refresh tokens, or PII.
+
+<% if (hasAuth) { -%>
+### Auth (Supabase)
+
+- Session storage uses MMKV via the Supabase client adapter — do not bypass with
+  AsyncStorage or ad-hoc persistence.
+- OAuth flows: `src/features/auth/api/nativeOAuth.ts` — follow existing patterns
+  for Google/Apple; see `docs/NATIVE_AUTH_SETUP.md` for provider setup.
+- Profile data: `src/features/profile/` — keep DB types in sync with Supabase
+  (`supabase gen types typescript`).
+<% } -%>
+<% if (hasOnboarding) { -%>
+### Onboarding
+
+- First-run intro is gated in `src/navigation/Application.tsx` via
+  `STORAGE_KEYS.ftueIntroCompleted` in MMKV — do not add parallel intro flags.
+<% } -%>
+
+---
+
+## Verification before finishing
+
+Run from the project root:
+
+```bash
+yarn lint          # prettier + tsc
+yarn test          # jest
+```
+
+For native or env changes, also confirm the app starts: `yarn start`.
+
+---
+
+## When to use skills
+
+This file defines **project conventions** (always apply). For specialized
+workflows — performance tuning, EAS release, Supabase RLS, premium UI — see
+[`SKILLS_DIRECTORY.md`](./SKILLS_DIRECTORY.md) and install the relevant skill
+before invoking it.

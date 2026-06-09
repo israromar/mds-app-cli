@@ -1,0 +1,98 @@
+import {
+  createDrawerNavigator,
+  DrawerNavigationOptions,
+} from '@react-navigation/drawer';
+import { LayoutDashboard, Settings as SettingsIcon } from 'lucide-react-native';
+import { View } from 'react-native';
+
+import { CustomDrawerContent } from '@/navigation/components/Drawer/CustomDrawerContent';
+import { Paths } from '@/navigation/paths';
+import { palette } from '@/theme';
+
+import { SettingsScreen } from '@/features/settings/screens/SettingsScreen';
+<% if (hasTabs) { -%>
+import { MainTabNavigator } from './MainTabNavigator';
+<% } else { -%>
+import { DashboardScreen } from '@/features/dashboard/screens/DashboardScreen';
+<% } -%>
+
+const Drawer = createDrawerNavigator();
+
+const homeOptions = {
+  drawerIcon: HomeIcon,
+  title: 'app:nav.dashboard',
+};
+
+const settingsOptions = {
+  drawerIcon: SettingsDrawerIcon,
+  title: 'app:nav.settings',
+};
+
+export function MainDrawerNavigator() {
+  return (
+    <Drawer.Navigator
+      drawerContent={CustomDrawerContent}
+      screenOptions={drawerOptions}
+    >
+<% if (hasTabs) { -%>
+      <Drawer.Screen
+        component={MainTabNavigator}
+        name={Paths.MainTabs}
+        options={homeOptions}
+      />
+<% } else { -%>
+      <Drawer.Screen
+        component={DashboardScreen}
+        name={Paths.Dashboard}
+        options={homeOptions}
+      />
+<% } -%>
+      <Drawer.Screen
+        component={SettingsScreen}
+        name={Paths.Settings}
+        options={settingsOptions}
+      />
+    </Drawer.Navigator>
+  );
+}
+
+function HomeIcon({ color }: { readonly color: string }) {
+  return (
+    <View className="h-6 w-6 items-center justify-center">
+      <LayoutDashboard color={color} size={20} />
+    </View>
+  );
+}
+
+function SettingsDrawerIcon({ color }: { readonly color: string }) {
+  return (
+    <View className="h-6 w-6 items-center justify-center">
+      <SettingsIcon color={color} size={20} />
+    </View>
+  );
+}
+
+const drawerOptions: DrawerNavigationOptions = {
+  drawerActiveBackgroundColor: palette.primary[50],
+  drawerActiveTintColor: palette.primary[600],
+  drawerInactiveTintColor: palette.neutral[500],
+  drawerItemStyle: {
+    borderRadius: 16,
+    marginHorizontal: 12,
+    paddingHorizontal: 12,
+    height: 52,
+    justifyContent: 'center',
+  },
+  drawerLabelStyle: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 15,
+    marginLeft: -10,
+  },
+  drawerStyle: {
+    backgroundColor: 'transparent',
+    width: '85%',
+  },
+  drawerType: 'slide',
+  headerShown: false,
+  overlayColor: 'rgba(0, 0, 0, 0.4)',
+};

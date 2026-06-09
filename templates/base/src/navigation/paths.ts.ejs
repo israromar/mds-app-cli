@@ -1,0 +1,28 @@
+export const enum Paths {
+<% if (hasOnboarding) { -%>
+  // Onboarding
+  AppIntro = 'app_intro',
+<% } -%>
+<% if (hasAuth) { -%>
+  // Auth
+  ForgotPassword = 'forgot_password',
+  ResetPassword = 'reset_password',
+  SignIn = 'sign_in',
+  SignUp = 'sign_up',
+  VerifyResetCode = 'verify_reset_code',
+  ChangePassword = 'change_password',
+<% } -%>
+  Startup = 'startup',
+
+  // Main app structure
+  Main = 'main',
+<% if (hasTabs) { -%>
+  MainTabs = 'main_tabs',
+<% } -%>
+
+  // Primary screens
+  Dashboard = 'dashboard',
+  Profile = 'profile',
+  Settings = 'settings',
+  EditProfile = 'edit_profile',
+}

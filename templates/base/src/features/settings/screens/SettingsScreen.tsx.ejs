@@ -1,0 +1,94 @@
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+<% if (hasAuth) { -%>
+import { Lock, LogOut, Trash2, User } from 'lucide-react-native';
+<% } else { -%>
+import { User } from 'lucide-react-native';
+<% } -%>
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ScrollView } from 'react-native';
+
+import { Paths } from '@/navigation/paths';
+import type { RootStackParamList } from '@/navigation/types';
+import { palette } from '@/theme';
+
+import { SafeScreen } from '@/components/templates';
+import { Column, Heading, Text } from '@/components/ui';
+
+import { APP_CONFIG } from '@/constants/app';
+import { SettingsItem } from '@/features/settings/components/SettingsItem';
+<% if (hasAuth) { -%>
+import { DeleteAccountModal } from '@/features/settings/components/DeleteAccountModal';
+import { useAuthStore } from '@/store/authStore';
+<% } -%>
+
+export function SettingsScreen() {
+  const { t } = useTranslation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+<% if (hasAuth) { -%>
+  const { signOut, deleteAccount } = useAuthStore();
+  const [isDeleteVisible, setIsDeleteVisible] = useState(false);
+
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (error) {
+      console.error('Logout failed:', error.message);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { error } = await deleteAccount();
+    if (!error) {
+      setIsDeleteVisible(false);
+    }
+  };
+<% } -%>
+
+  return (
+    <SafeScreen>
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <Column className="gap-6">
+          <Heading>{t('app:screen_settings.title')}</Heading>
+
+          <Column>
+            <SettingsItem
+              icon={<User color={palette.primary[500]} size={20} />}
+              label={t('app:screen_settings.edit_profile')}
+              onPress={() => navigation.navigate(Paths.EditProfile)}
+            />
+<% if (hasAuth) { -%>
+            <SettingsItem
+              icon={<Lock color={palette.primary[500]} size={20} />}
+              label={t('app:screen_settings.change_password')}
+              onPress={() => navigation.navigate(Paths.ChangePassword)}
+            />
+            <SettingsItem
+              icon={<LogOut color={palette.primary[500]} size={20} />}
+              label={t('app:screen_settings.logout')}
+              onPress={() => void handleLogout()}
+            />
+            <SettingsItem
+              icon={<Trash2 color="#EF4444" size={20} />}
+              isLast
+              label={t('app:screen_settings.delete_account')}
+              onPress={() => setIsDeleteVisible(true)}
+            />
+<% } -%>
+          </Column>
+
+          <Text className="text-center text-muted text-xs">
+            {APP_CONFIG.name} v{APP_CONFIG.version}
+          </Text>
+        </Column>
+      </ScrollView>
+<% if (hasAuth) { -%>
+      <DeleteAccountModal
+        isVisible={isDeleteVisible}
+        onClose={() => setIsDeleteVisible(false)}
+        onDeleteConfirm={handleDeleteConfirm}
+      />
+<% } -%>
+    </SafeScreen>
+  );
+}

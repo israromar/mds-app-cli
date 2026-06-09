@@ -1,0 +1,68 @@
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { LayoutDashboard, User } from 'lucide-react-native';
+
+import { Paths } from '@/navigation/paths';
+import { MainTabParamList } from '@/navigation/types';
+
+import { DashboardScreen } from '@/features/dashboard/screens/DashboardScreen';
+import { ProfileScreen } from '@/features/profile/screens/ProfileScreen';
+
+import { FloatingTabBar } from '../components/FloatingTabBar';
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const renderTabBar = (props: BottomTabBarProps) => (
+  <FloatingTabBar {...props} />
+);
+
+const dashboardOptions = {
+  tabBarLabel: 'app:nav.dashboard',
+  tabBarIcon: DashboardIcon,
+};
+
+const profileOptions = {
+  tabBarLabel: 'app:nav.profile',
+  tabBarIcon: ProfileIcon,
+};
+
+export function MainTabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={{ headerShown: false }}
+      tabBar={renderTabBar}
+    >
+      <Tab.Screen
+        component={DashboardScreen}
+        name={Paths.Dashboard}
+        options={dashboardOptions}
+      />
+      <Tab.Screen
+        component={ProfileScreen}
+        name={Paths.Profile}
+        options={profileOptions}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function DashboardIcon({
+  color,
+  size,
+}: {
+  readonly color: string;
+  readonly size: number;
+}) {
+  return <LayoutDashboard color={color} size={size} />;
+}
+
+function ProfileIcon({
+  color,
+  size,
+}: {
+  readonly color: string;
+  readonly size: number;
+}) {
+  return <User color={color} size={size} />;
+}

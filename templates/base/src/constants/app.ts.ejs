@@ -1,0 +1,15 @@
+import type { ImageSourcePropType } from 'react-native';
+
+import logoAsset from '@/../assets/icon.png';
+
+/**
+ * Centralized app configuration and static info.
+ */
+export const APP_CONFIG = {
+  name: '<%- appNameJs %>',
+  displayName: '<%- appNameJs %>',
+  bundleId: '<%= bundleId %>',
+  version: '0.1.0',
+  description: '<%- appNameJs %> mobile app.',
+  logo: logoAsset as ImageSourcePropType,
+} as const;

@@ -1,0 +1,90 @@
+# Post-generation setup — <%= appName %>
+
+This app was scaffolded with **create-mds-app**. Follow these steps to get it
+running and ready to ship.
+
+## 1. Install & run
+
+```bash
+yarn install          # or npm install / pnpm install
+cp .env.example .env  # fill in values (see below)
+yarn start            # Expo dev server (dev client)
+```
+
+The first native run requires generating the native projects:
+
+```bash
+npx expo prebuild     # creates ios/ and android/
+yarn ios              # or: yarn android
+```
+
+> `ios/` and `android/` are git-ignored on purpose — they are regenerated from
+> `app.config.ts` via prebuild. Keep configuration in `app.config.ts`, not in
+> the native folders.
+
+## 2. Environment variables
+
+Edit `.env` (never commit it). Keys are inlined at build time, so **restart
+Metro with `npx expo start --clear` after any change.**
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `EXPO_OWNER` | for EAS | Your Expo account/org username. |
+| `EAS_PROJECT_ID` | for EAS | From `eas init` or the Expo dashboard. |
+<% if (hasAuth) { -%>
+| `EXPO_PUBLIC_SUPABASE_URL` | yes | Supabase project URL. |
+| `EXPO_PUBLIC_SUPABASE_KEY` | yes | Supabase anon/publishable key. |
+| `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | for Google | Google OAuth web client id. |
+<% } -%>
+| `EXPO_PUBLIC_SENTRY_DSN` | optional | Enables crash reporting in production. |
+
+## 3. EAS / OTA
+
+The project is wired for EAS Build, Submit and OTA Updates (`eas.json`,
+`app.config.ts`).
+
+```bash
+npm i -g eas-cli
+eas login
+eas init                       # links the project & sets the projectId
+eas build --profile development --platform ios   # or android / all
+```
+
+OTA updates are **disabled for local `expo run:*`** and enabled only for the
+`preview` and `production` build profiles (see `updates` in `app.config.ts`).
+
+```bash
+yarn update:preview            # push an OTA update to the preview channel
+yarn update:production
+```
+<% if (hasAuth) { %>
+## 4. Supabase & native auth
+
+Authentication (email/password + Google + Apple + password reset) is included.
+See [`NATIVE_AUTH_SETUP.md`](./NATIVE_AUTH_SETUP.md) for the full provider setup.
+
+Quick start:
+
+1. Create a Supabase project and copy the URL + anon key into `.env`.
+2. Create a `profiles` table and the optional `delete_user_account` RPC.
+3. Configure Google + Apple providers (see `NATIVE_AUTH_SETUP.md`).
+4. Generate exact DB types and replace `src/features/profile/types/profile.ts`:
+
+```bash
+supabase gen types typescript --project-id <ref> > src/services/supabase/database.types.ts
+```
+<% } %>
+## <%= hasAuth ? '5' : '4' %>. Where to start coding
+
+- App identity: `app.config.ts`, `src/constants/app.ts`
+- Navigation: `src/navigation/` (root gate in `Application.tsx`)
+- Screens: `src/features/*/screens`
+- Design tokens: `src/theme/`
+- Copy / i18n: `src/translations/en-EN.json`
+
+### Using AI agents (Cursor, etc.)
+
+- **[`AGENTS.md`](../AGENTS.md)** — always-on project conventions (structure,
+  styling, state, i18n, navigation). Agents load this automatically.
+- **[`SKILLS_DIRECTORY.md`](../SKILLS_DIRECTORY.md)** — optional specialized
+  skills (EAS, Sentry, Supabase, testing, etc.) to install when you need them.

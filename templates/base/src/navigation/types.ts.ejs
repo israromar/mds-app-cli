@@ -1,0 +1,53 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { StackScreenProps } from '@react-navigation/stack';
+
+import type { Paths } from '@/navigation/paths';
+
+<% if (hasTabs) { -%>
+export type MainTabParamList = {
+  [Paths.Dashboard]: undefined;
+  [Paths.Profile]: undefined;
+};
+
+<% } -%>
+<% if (hasDrawer) { -%>
+export type MainDrawerParamList = {
+<% if (hasTabs) { -%>
+  [Paths.MainTabs]: NavigatorScreenParams<MainTabParamList> | undefined;
+<% } else { -%>
+  [Paths.Dashboard]: undefined;
+<% } -%>
+  [Paths.Settings]: undefined;
+};
+
+<% } -%>
+export type RootStackParamList = {
+<% if (hasOnboarding) { -%>
+  [Paths.AppIntro]: undefined;
+<% } -%>
+<% if (hasAuth) { -%>
+  [Paths.ForgotPassword]: undefined;
+  [Paths.ResetPassword]: { email: string; type?: 'recovery' | 'signup' };
+  [Paths.SignIn]: undefined;
+  [Paths.SignUp]: undefined;
+  [Paths.VerifyResetCode]: { email: string; type?: 'recovery' | 'signup' };
+  [Paths.ChangePassword]: undefined;
+<% } -%>
+  [Paths.Startup]: undefined;
+
+<% if (hasDrawer) { -%>
+  [Paths.Main]: NavigatorScreenParams<MainDrawerParamList> | undefined;
+<% } else if (hasTabs) { -%>
+  [Paths.Main]: NavigatorScreenParams<MainTabParamList> | undefined;
+<% } else { -%>
+  [Paths.Main]: undefined;
+  [Paths.Dashboard]: undefined;
+<% } -%>
+  [Paths.Profile]: undefined;
+  [Paths.Settings]: undefined;
+  [Paths.EditProfile]: undefined;
+};
+
+export type RootScreenProps<
+  S extends keyof RootStackParamList = keyof RootStackParamList,
+> = StackScreenProps<RootStackParamList, S>;

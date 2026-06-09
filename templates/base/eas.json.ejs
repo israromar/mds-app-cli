@@ -1,0 +1,48 @@
+{
+  "cli": {
+    "version": ">= 16.22.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "channel": "development",
+      "env": {
+        "EAS_USE_CACHE": "1"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EAS_USE_CACHE": "1"
+      }
+    },
+    "production": {
+      "autoIncrement": false,
+      "channel": "production",
+      "env": {
+        "EAS_USE_CACHE": "1",
+        "APS_ENVIRONMENT": "production"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "<%= ascAppId %>"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./credentials/google-play-service-account.json",
+        "track": "production"
+      }
+    }
+  }
+}

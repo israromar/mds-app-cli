@@ -1,0 +1,117 @@
+# 🛠️ <%- appName %> Skills Directory
+
+This is your cheat sheet for **optional** agent skills while working on
+**<%- appName %>**. Mention a **Skill ID** or **Trigger Phrase** in your prompt
+to steer the agent toward a specialized workflow.
+
+> **Always-on conventions** live in [`AGENTS.md`](./AGENTS.md) — agents load that
+> automatically. This file is for **extra capabilities** you install yourself.
+
+This app was scaffolded with **create-mds-app** — an Expo + React Native starter
+with React Navigation, NativeWind, Zustand/MMKV, TanStack Query<% if (hasAuth) { %>, and Supabase auth<% } %>.
+
+---
+
+## 📦 Installing skills
+
+Skills listed here are **not bundled** in this repo. Install them before use:
+
+1. In Cursor: **Settings → Rules → Add skill**, or use a skill marketplace /
+   `npx skills find <topic>` if you use the skills CLI.
+2. Copy community `SKILL.md` files into `.cursor/skills/<skill-name>/` for
+   project-local skills.
+3. Verify the skill is available, then invoke it by ID or trigger phrase below.
+
+Until installed, trigger phrases may still work if your agent has equivalent
+built-in knowledge — but dedicated skills give more consistent results.
+
+**Project context docs:** [`AGENTS.md`](./AGENTS.md) · [`docs/POST_GENERATION_SETUP.md`](./docs/POST_GENERATION_SETUP.md)<% if (hasAuth) { %> · [`docs/NATIVE_AUTH_SETUP.md`](./docs/NATIVE_AUTH_SETUP.md)<% } %>.
+
+---
+
+## 🚀 Most relevant for this stack
+
+| Skill ID | Trigger Phrases | Best used for... |
+| :------- | :-------------- | :--------------- |
+| `react-native-skills` | "Refactor for performance", "Fix animation", "Optimize list" | RN performance, FlatLists, Reanimated, gesture handler, dev-client workflow. |
+| `expo-prebuild` | "Add native module", "Config plugin", "Prebuild issue" | `expo prebuild`, config plugins, native deps (MMKV, Reanimated, Nitro). |
+| `eas-release` | "EAS build", "Ship OTA", "Submit to stores" | `eas.json` profiles, channels, `yarn update:production`, App Store / Play submit. |
+| `frontend-design` | "Build component", "Style this", "Creative UI" | Polished RN screens and adaptive layouts from screenshots. |
+| `ui-ux-pro-max` | "Make it premium", "Modern design", "Polish this screen" | Premium UI aligned with tokens in `src/theme`. |
+| `sentry-react-native` | "Setup Sentry", "Capture crash", "Add breadcrumb" | `src/services/sentry.ts`, DSN, source maps, production error context. |
+| `zod-validation` | "Validate form", "Add schema", "Parse API response" | zod schemas in feature `api/`, auth inputs, API error mapping. |
+| `react-native-testing` | "Write component test", "Mock native module", "Jest setup" | Jest + RN mocks (`jest.setup.js`, `src/tests/__mocks__/`). |
+| `mobile-a11y` | "Accessibility", "Screen reader", "a11y audit" | `accessibilityLabel`, roles, focus order, contrast on RN components. |
+<% if (hasAuth) { -%>
+| `supabase` | "Supabase auth", "Edge Function", "Realtime channel" | Supabase client, auth flows, Edge Functions, Realtime, Storage. |
+| `supabase-postgres-best-practices` | "Setup RLS", "Optimize query", "Fix database schema" | Postgres, Row-Level Security, Supabase SQL, auth/profile tables. |
+<% } -%>
+
+**Feature → skill mapping for the modules in this app:**
+
+| Area | Primary skills | Supporting skills |
+| :--- | :------------- | :---------------- |
+| Navigation shell (stack<% if (hasDrawer) { %> + drawer<% } %><% if (hasTabs) { %> + tabs<% } %>) | `react-native-skills` | `composition-patterns` |
+| Theming & design tokens (`src/theme`) | `ui-ux-pro-max`, `frontend-design` | `theme-factory` |
+| Screens & components (`src/features/*`) | `frontend-design`, `composition-patterns` | `react-native-skills` |
+| Copy / i18n (`src/translations/en-EN.json`) | `composition-patterns` | `verification-before-completion` |
+| State & caching (Zustand + MMKV, TanStack Query) | `react-native-skills` | `systematic-debugging` |
+| Forms & validation (zod) | `zod-validation` | `composition-patterns` |
+| Crash reporting (Sentry) | `sentry-react-native` | `systematic-debugging` |
+| Native modules & prebuild | `expo-prebuild` | `react-native-skills` |
+| Release (EAS Build / Submit / OTA) | `eas-release` | `verification-before-completion`, `writing-plans` |
+| Testing (Jest) | `react-native-testing` | `test-driven-development` |
+| Accessibility | `mobile-a11y` | `frontend-design` |
+<% if (hasAuth) { -%>
+| Auth & profile (Supabase) | `supabase`, `supabase-postgres-best-practices` | `zod-validation`, `systematic-debugging` |
+<% } -%>
+<% if (hasOnboarding) { -%>
+| Onboarding / first-run flow | `frontend-design` | `ui-ux-pro-max`, `mobile-a11y` |
+<% } -%>
+
+---
+
+## 🧠 Core engineering workflow
+
+| Skill ID | Trigger Phrases | Best used for... |
+| :------- | :-------------- | :--------------- |
+| `brainstorming` | "Let's brainstorm", "Plan this feature" | Exploring requirements and design before implementation. |
+| `writing-plans` | "Write a plan", "Implementation spec" | Multi-step blueprints for complex features. |
+| `systematic-debugging` | "Debug this", "Fix the bug", "Why is it failing?" | Evidence-based root cause analysis. |
+| `test-driven-development` | "TDD this", "Write tests first" | Define expectations before logic. |
+| `verification-before-completion` | "Verify work", "Check if fixed" | Run `yarn lint` / `yarn test` and confirm before done. |
+
+---
+
+## 🎨 UI & aesthetics
+
+| Skill ID | Trigger Phrases | Best used for... |
+| :------- | :-------------- | :--------------- |
+| `composition-patterns` | "Refactor component", "Reusable API" | Container vs. presentational split; clean component APIs. |
+| `theme-factory` | "Apply theme", "Change branding" | Adjust design tokens and branding in `src/theme`. |
+| `frontend-design` | "Build component", "Style this" | High-fidelity, adaptive React Native components. |
+
+---
+
+## 🧱 Codebase conventions
+
+**Do not duplicate these in prompts** — they are enforced via [`AGENTS.md`](./AGENTS.md):
+
+- Feature-based `src/features/` layout · `@/` imports · public `index.ts` barrels
+- NativeWind + `src/theme` tokens · TanStack Query vs Zustand/MMKV split
+- i18n keys in `en-EN.json` · declarative navigation · zod at API boundaries
+- `app.config.ts` for native config · no secrets in source
+
+---
+
+## 💡 How to trigger a skill
+
+After installing a skill:
+
+- **Explicit:** _"Use `eas-release` to set up a preview OTA channel."_
+- **Natural:** _"Brainstorm the profile feature, then use `zod-validation` for the form."_
+- **Conventions only:** _"Add a settings row"_ — no skill needed; `AGENTS.md` applies.
+
+> [!TIP]
+> Not sure which to use? Ask **"Which skill fits this task?"** or read the
+> feature → skill table above.
