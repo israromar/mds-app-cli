@@ -4,10 +4,14 @@ import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 
 import {
+  isSupabaseConfigured,
   supabasePublicAnonKey,
   supabasePublicUrl,
 } from '@/services/supabase/publicEnvironment';
 import { appStorage } from '@/storage/appStorage';
+import { logger } from '@/utils/logger';
+
+export { isSupabaseConfigured };
 
 /* eslint-disable unicorn/prevent-abbreviations, @typescript-eslint/no-explicit-any, unicorn/prefer-code-point, @typescript-eslint/no-deprecated */
 // Polyfill TextEncoder and TextDecoder for React Native (Hermes/JSC compatibility)
@@ -43,18 +47,19 @@ if (globalThis.TextDecoder === undefined) {
 }
 /* eslint-enable unicorn/prevent-abbreviations, @typescript-eslint/no-explicit-any, unicorn/prefer-code-point, @typescript-eslint/no-deprecated */
 
-const fallbackTestSupabaseUrl = 'http://localhost:54321';
-const fallbackTestAnonKey = 'test-anon-key';
+const fallbackSupabaseUrl = 'http://localhost:54321';
+const fallbackAnonKey = 'placeholder-anon-key';
+
 const resolvedSupabaseUrl =
   supabasePublicUrl ||
-  (process.env.NODE_ENV === 'test' ? fallbackTestSupabaseUrl : '');
+  (process.env.NODE_ENV === 'test' ? fallbackSupabaseUrl : fallbackSupabaseUrl);
 const resolvedSupabaseAnonKey =
   supabasePublicAnonKey ||
-  (process.env.NODE_ENV === 'test' ? fallbackTestAnonKey : '');
+  (process.env.NODE_ENV === 'test' ? fallbackAnonKey : fallbackAnonKey);
 
-if (!resolvedSupabaseUrl || !resolvedSupabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase URL or anon/publishable key. In `.env` use SUPABASE_URL + SUPABASE_ANON_KEY, or EXPO_PUBLIC_SUPABASE_URL + EXPO_PUBLIC_SUPABASE_KEY (use KEY=value lines, not colons). Restart Metro: npx expo start --clear, then rebuild.',
+if (!isSupabaseConfigured && process.env.NODE_ENV !== 'test') {
+  logger.warn(
+    '[supabase] Missing URL or anon key. Copy `.env.example` to `.env`, set EXPO_PUBLIC_SUPABASE_URL + EXPO_PUBLIC_SUPABASE_KEY, then restart Metro with `npx expo start --clear`. Auth will not work until configured.',
   );
 }
 
@@ -90,7 +95,7 @@ export const supabase = createClient(
 // Starting auto-refresh on foreground forces an immediate refresh tick (so a
 // just-expired token is renewed right away) and stopping it on background
 // avoids needless work. This is the canonical Supabase RN setup.
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && isSupabaseConfigured) {
   AppState.addEventListener('change', (state) => {
     if (state === 'active') {
       void supabase.auth.startAutoRefresh();

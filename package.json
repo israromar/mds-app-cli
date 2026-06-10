@@ -1,6 +1,6 @@
 {
   "name": "create-mds-app",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Scaffold production-ready Expo apps for MobileDevelopmentSimplified",
   "type": "module",
   "repository": {

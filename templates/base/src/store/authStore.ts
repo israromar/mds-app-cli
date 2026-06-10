@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { signOutExternalIdentityProviders } from '@/features/auth/api/nativeOAuth';
 import { type Profile } from '@/features/profile/types/profile';
-import { supabase } from '@/services/supabase';
+import { isSupabaseConfigured, supabase } from '@/services/supabase';
 import { getSessionWithTimeout } from '@/services/supabase/getSessionWithTimeout';
 import { appStorage } from '@/storage/appStorage';
 
@@ -47,6 +47,10 @@ export const useAuthStore = create<AuthState>()(
           loading: false,
         }),
       hydrateSession: async () => {
+        if (!isSupabaseConfigured) {
+          set({ user: null, isAuthenticated: false, loading: false });
+          return;
+        }
         const session = await getSessionWithTimeout();
         set({
           user: session?.user ?? null,

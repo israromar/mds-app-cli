@@ -24,3 +24,5 @@ const anonKey = firstNonEmpty(
 
 export const supabasePublicAnonKey = anonKey;
 export const supabasePublicUrl = url;
+
+export const isSupabaseConfigured = Boolean(url && anonKey);
