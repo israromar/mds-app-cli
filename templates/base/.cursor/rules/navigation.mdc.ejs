@@ -1,0 +1,17 @@
+---
+description: React Navigation structure and routing conventions.
+globs: src/navigation/**
+alwaysApply: false
+---
+
+# Navigation conventions
+
+Root navigator for this app: **<%= rootNavigator === 'drawer-tabs' ? 'drawer + tabs + stack' : rootNavigator === 'drawer-only' ? 'drawer + stack' : rootNavigator === 'tabs-only' ? 'tabs + stack' : 'stack only' %>**.
+
+- **The gate is `src/navigation/Application.tsx`.** It decides what renders based on app state<% if (hasOnboarding) { %> (onboarding flag)<% } %><% if (hasAuth) { %> (auth session, password-recovery)<% } %>. Add top-level routing decisions here.
+- **Prefer declarative, state-driven routing** over imperative `navigation.reset` / `replace` inside `useEffect`. Render the right stack from state.
+- **Route names and params are typed.** Add/extend them in `src/navigation/paths.ts` and `src/navigation/types.ts` — never pass string-literal route names or untyped params.
+- Navigators live in `src/navigation/navigators/`; shared chrome (drawer/tab bar) in `src/navigation/components/`.
+<% if (hasAuth) { -%>
+- Auth flows render the `AuthNavigator`; authenticated users render `AppNavigator`. Keep that decision in `Application.tsx`, driven by `authStore`.
+<% } -%>

@@ -1,0 +1,24 @@
+---
+description: Conventions for code under src/features (screens, hooks, api, types).
+globs: src/features/**
+alwaysApply: false
+---
+
+# Feature module conventions
+
+Each feature is self-contained under `src/features/<name>/`:
+
+```
+api/         data access (TanStack Query hooks, fetchers), schemas.ts (zod)
+components/  feature-local presentational components
+hooks/       feature-local hooks
+screens/     screen containers (own data + orchestration)
+types/       feature types
+index.ts     PUBLIC surface — the only thing other features may import
+```
+
+- **Import boundaries:** other features import only from this feature's `index.ts`. Inside the feature, use relative or `@/features/<name>/...` paths.
+- **Container vs presentational:** screens own data hooks and navigation; extract layout into pure, typed components. Split a screen when it exceeds ~200 lines or mixes fetching with heavy layout.
+- **Copy is i18n:** never hard-code user-facing strings — add keys to `src/translations/en-EN.json` and use `useTranslation()`.
+- **Validation:** define zod schemas in `api/schemas.ts`; validate at API boundaries and surface field errors in inputs.
+- **Navigation:** use route names/params from `src/navigation/paths.ts` + `types.ts`, not string literals.

@@ -5,6 +5,10 @@ Agents should follow these conventions on every change. Optional specialized
 skills are listed in [`SKILLS_DIRECTORY.md`](./SKILLS_DIRECTORY.md) (install
 separately — they are not bundled in this repo).
 
+Path-scoped, file-local rules live in [`.cursor/rules/`](./.cursor/rules) and
+auto-attach as you edit matching files (features, UI/theme, data/state,
+navigation<% if (hasAuth) { %>, auth<% } %>). This file holds the **global** conventions.
+
 **Setup & shipping:** [`docs/POST_GENERATION_SETUP.md`](./docs/POST_GENERATION_SETUP.md)<% if (hasAuth) { %> · [`docs/NATIVE_AUTH_SETUP.md`](./docs/NATIVE_AUTH_SETUP.md)<% } %>.
 
 ---

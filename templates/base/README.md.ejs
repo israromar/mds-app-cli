@@ -1,0 +1,68 @@
+# <%- appName %>
+
+Production-ready **Expo SDK 56 / React Native 0.85** app (New Architecture), scaffolded with [`create-mds-app`](https://github.com/israromar/mds-app-cli).
+
+## Stack
+
+- **Navigation:** React Navigation — <%= rootNavigator === 'drawer-tabs' ? 'drawer + tabs + stack' : rootNavigator === 'drawer-only' ? 'drawer + stack' : rootNavigator === 'tabs-only' ? 'tabs + stack' : 'stack only' %>
+- **Styling:** NativeWind 4 + design tokens (`src/theme/`), gluestack-ui primitives
+- **State:** TanStack Query (server) · Zustand + MMKV (client/persisted)
+- **i18n:** react-i18next (`src/translations/en-EN.json`)
+<% if (hasAuth) { -%>
+- **Auth:** Supabase (email/password + Google + Apple)
+<% } -%>
+- **Observability:** Sentry (opt-in via `EXPO_PUBLIC_SENTRY_DSN`)
+- **Release:** EAS Build / Submit / OTA
+
+## Quick start
+
+```bash
+yarn install
+cp .env.example .env   # fill in values
+yarn start             # Expo dev client
+```
+
+First native run (generates `ios/` and `android/`):
+
+```bash
+npx expo prebuild
+yarn ios               # or: yarn android
+```
+
+> `ios/` and `android/` are git-ignored and regenerated from `app.config.ts`. Configure native settings there, not in the native folders. Restart Metro with `npx expo start --clear` after `.env` changes.
+<% if (hasAuth) { %>
+Auth is optional at boot: the app runs without Supabase env vars (sign-in is disabled until `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` are set).
+<% } %>
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `yarn start` | Expo dev server (dev client) |
+| `yarn ios` / `yarn android` | Build & run on a simulator/device |
+| `yarn lint` | Prettier check + TypeScript |
+| `yarn test` | Jest |
+| `yarn build:dev` / `build:preview` / `build:prod` | EAS builds |
+| `yarn update:preview` / `update:production` | EAS OTA updates |
+
+## Project structure
+
+```
+src/
+  features/<feature>/   api/ components/ hooks/ screens/ types/ index.ts
+  components/           shared UI (ui/ primitives, atoms → templates)
+  navigation/           Application.tsx gate, navigators, paths, types
+  theme/                tokens, ThemeProvider, useTheme
+  services/             queryClient, sentry<% if (hasAuth) { %>, supabase<% } %>
+  store/                Zustand stores
+  storage/              MMKV
+  translations/         i18n
+  constants/  utils/
+```
+
+## Documentation & AI context
+
+- [`AGENTS.md`](./AGENTS.md) — always-on conventions for AI agents (Cursor reads this automatically)
+- [`.cursor/rules/`](./.cursor/rules) — path-scoped rules that auto-attach while you edit
+- [`SKILLS_DIRECTORY.md`](./SKILLS_DIRECTORY.md) — optional skills to install
+- [`docs/POST_GENERATION_SETUP.md`](./docs/POST_GENERATION_SETUP.md) — setup & shipping<% if (hasAuth) { %>
+- [`docs/NATIVE_AUTH_SETUP.md`](./docs/NATIVE_AUTH_SETUP.md) — Supabase + OAuth provider setup<% } %>

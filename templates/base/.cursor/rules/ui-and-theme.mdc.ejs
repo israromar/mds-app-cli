@@ -1,0 +1,13 @@
+---
+description: Styling and shared UI conventions for components and theme tokens.
+globs: src/components/**,src/theme/**
+alwaysApply: false
+---
+
+# UI & theme conventions
+
+- **Styling:** NativeWind `className` plus tokens from `src/theme/`. Use `useTheme()` and `cn()` (`src/utils/cn.ts`) — never hard-code hex colors or magic spacing. Add new values as tokens in `src/theme/` instead.
+- **Primitives:** shared UI lives in `src/components/ui/` (gluestack-ui based). Import via the `@/components/ui` barrel, not internal files.
+- **Composition tiers:** `atoms → molecules → organisms → templates`. Keep components pure and typed; push data/state up to feature screens.
+- **Theme source of truth:** colors, spacing, fonts, borders, gutters in `src/theme/*` with matching types in `src/theme/types/*`. Extend tokens; do not fork them per component.
+- **No copy in components:** user-facing text comes from i18n (`src/translations/en-EN.json`).

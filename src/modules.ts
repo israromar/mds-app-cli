@@ -13,6 +13,7 @@ const MODULE_PATHS: Record<keyof ModuleFlags, string[]> = {
     'docs/NATIVE_AUTH_SETUP.md.ejs',
     'supabase',
     'scripts/generate-apple-client-secret.mjs',
+    '.cursor/rules/auth.mdc.ejs',
   ],
   onboarding: ['src/features/onboarding'],
   drawer: [

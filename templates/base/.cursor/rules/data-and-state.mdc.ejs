@@ -1,0 +1,13 @@
+---
+description: Data fetching and state management split (TanStack Query vs Zustand + MMKV).
+globs: src/services/**,src/store/**,src/features/**/api/**
+alwaysApply: false
+---
+
+# Data & state conventions
+
+- **Server / async state → TanStack Query.** Shared client in `src/services/queryClient.ts`; query/mutation hooks live in each feature's `api/`. Key queries consistently and colocate them with the feature.
+- **Client / persisted state → Zustand + MMKV.** Stores in `src/store/`; persistence via `src/storage/appStorage.ts` (MMKV adapter). Do not reach for AsyncStorage.
+- **Do not duplicate server data in Zustand** unless there is a clear UX reason (e.g. optimistic UI). Treat Query cache as the source of truth for remote data.
+- **Validation at boundaries:** parse/validate external data with zod (`api/schemas.ts`) before it enters the cache or store.
+- **Errors:** surface user-facing failures via Toast/Alert; use `src/utils/logger.ts` for diagnostics (no `console.*` in shipped code paths).

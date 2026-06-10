@@ -1,0 +1,15 @@
+---
+description: Supabase auth, session, and profile conventions.
+globs: src/features/auth/**,src/services/supabase/**,src/store/authStore.ts,src/features/profile/**
+alwaysApply: false
+---
+
+# Auth conventions (Supabase)
+
+- **Config guard:** the app must boot even without Supabase env vars. `isSupabaseConfigured` (`src/services/supabase/publicEnvironment.ts`) gates session hydration, the auth-state listener, and token auto-refresh. Preserve these guards — do not throw at import time when env is missing.
+- **Env:** `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_KEY` (or `SUPABASE_URL` / `SUPABASE_ANON_KEY`). Restart Metro with `npx expo start --clear` after `.env` changes.
+- **Session storage** uses MMKV via the Supabase client adapter (`src/services/supabase/client.ts`). Never bypass it with AsyncStorage or ad-hoc persistence.
+- **Auth state** is centralized in `src/store/authStore.ts`; the navigation gate (`src/navigation/Application.tsx`) reacts to it. Mutate session only through the store.
+- **OAuth:** Google/Apple native flows are in `src/features/auth/api/nativeOAuth.ts`. Follow existing patterns; provider setup is documented in `docs/NATIVE_AUTH_SETUP.md`.
+- **Profile types:** keep `src/features/profile/types/profile.ts` in sync with the DB (`supabase gen types typescript`). Do not hand-drift types from the schema.
+- **Secrets:** never log tokens, refresh tokens, or PII.
